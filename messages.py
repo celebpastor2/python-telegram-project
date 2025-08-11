@@ -8,9 +8,16 @@ import random
 import string
 import requests
 from urllib.parse import urlencode
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 TELEGRAM_TOKEN = "7936586039:AAFBxzXW78tq9OArvZm5BfQiBPM3Kuta0C0"
 ADS_LINK    = "https://www.profitableratecpm.com/armxiuwyu?key=1da115d4d39828e534c0206c4af9f885"
+BASE_URL    = "http://localhost:8000"
 
 
 
@@ -77,7 +84,7 @@ async def queryHandler(update: Update, context:CallbackContext ):
         group_id = ""
         for _ in range(10) :
             group_id += str( random.choice(group_id) )
-            directory = os.path.join(os.getcwd(), "groups")
+            """directory = os.path.join(os.getcwd(), "groups")
             filename  = os.path.join(directory, f"{group_id}-{chat_id}.json")
 
             with open(filename) as file:
@@ -90,7 +97,19 @@ async def queryHandler(update: Update, context:CallbackContext ):
 
                 }
                 group_members.append(usered)
-                file.write(json.dumps( group_members ))
+                file.write(json.dumps( group_members ))"""
+        endpoint = "create-user-group"
+        data = {
+            'group_id'  : group_id,
+            'chat_id'   : chat_id,
+
+        }
+        response =  requests.post(BASE_URL + endpoint, data=data, headers={'Content-Type' : 'application/json'})
+        if response.text == "":
+            await query.edit_message_text(f"Group Successfully Created with ID: \n {group_id}")
+
+        else :
+            await query.edit_message_text(f"Group Not Successfully Created")
 
     elif query.data == "check-profile" :
          await query.edit_message_text(f"Input(First Name:" " \n Last Name:" " \n Phone number: " " \n Username: " " \n Location: " ")")

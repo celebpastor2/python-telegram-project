@@ -19,10 +19,20 @@ from django.urls import path
 from telegramApp.views import name
 from telegramApp.views import RegisterUser
 from telegramApp.views import userExist
+from telegramApp.views import getAllTelegramGroups
+from telegramApp.views import getAllTelegramFriend
+from telegramApp.views import removeTelegramUserFriend
+from telegramApp.views import addTelegramUserFriend
+from telegramApp.views import getTelegramUser
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('view/', name),
     path('class/', RegisterUser),
-    path("exists", userExist)
+    path("exists/", userExist),
+    path("get-telegram-group/", getAllTelegramGroups),
+    path("get-telegram-friends/", getAllTelegramFriend),
+    path("remove-telegram-friends/", removeTelegramUserFriend),
+    path("add-telegram-friend/", addTelegramUserFriend),
+    path("get-telegram-user/", getTelegramUser)
 ]

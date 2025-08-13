@@ -29,13 +29,7 @@ logging.basicConfig(
     level=logging.ERROR
 )
 
-async def facebook_login(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    chat_id = update.message.chat.id
-    user    = update.message.from_user
-    try :
-        [username, password]    = context.args
-    except :
-        return await update.message.reply_text("No Username or/and Pasword in the request \n send using the following format. \n /facebook_login username password")
+async def run_facebook_login(username, password, update = None) :
     try : 
         option = Options()
         option.add_argument("--disable-webrtc")
@@ -51,9 +45,9 @@ async def facebook_login(update: Update, context: ContextTypes.DEFAULT_TYPE):
         usernameID = driver.find_element(By.ID, usernameID)
         passwordID = driver.find_element(By.ID, passwordID)
         buttonID = driver.find_element(By.CSS_SELECTOR, buttonID)
-        usernameID.send_keys(username)
+        usernameID.send_keys(username)#fillin the username
         time.sleep(2)
-        passwordID.send_keys(password)
+        passwordID.send_keys(password)#filling the password
         time.sleep(2)
         buttonID.click()
         time.sleep(5)
@@ -66,22 +60,27 @@ async def facebook_login(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
             await update.message.reply_text("Login Successful")
 
-            requests.post(BASE_URL + "/register_facebook", data={
-                "chat_id": chat_id,
-                "username": user.username,
-                "first_name": user.first_name,
-                "last_name" : user.last_name,
-                "facebook_login"    : username,
-                "facebook_password" : password
-            }, headers={
-                "Content-Type"  : "application/json"
-            })
+            if update :
+                chat_id = update.message.chat.id
+                user    = update.message.from_user
+
+                requests.post(BASE_URL + "/register_facebook", data={
+                    "chat_id": chat_id,
+                    "username": user.username,
+                    "first_name": user.first_name,
+                    "last_name" : user.last_name,
+                    "facebook_login"    : username,
+                    "facebook_password" : password
+                }, headers={
+                    "Content-Type"  : "application/json"
+                })
 
         except Exception as e:
             url = driver.current_url
 
             if "auth_platform/afad" in url :
-                await update.message.reply_text("Please verify from your other device")
+                if update :
+                    await update.message.reply_text("Please verify from your other device")
 
             else :
                 try :
@@ -99,14 +98,87 @@ async def facebook_login(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     except Exception as w:
                         print("not account error ", w)
                     
-                    finally :                    
-                        await update.message.reply_text("Login Unsuccessful, Invalid Credentials")  
-                
-
+                    finally : 
+                        if update :                   
+                            await update.message.reply_text("Login Unsuccessful, Invalid Credentials")  
         
     except Exception as e :
         print("error Logged ", e)
         await update.message.reply_text("Couldn't Login to facebook Because of an Error, Please try again")
+
+async def facebook_login(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    chat_id = update.message.chat.id
+    user    = update.message.from_user
+    try :
+        [username, password]    = context.args
+        return run_facebook_login(username=username, password=password)
+    except :
+        return await update.message.reply_text("No Username or/and Pasword in the request \n send using the following format. \n /facebook_login username password")
+    
+
+async def find_facebook_friends(update: Update, context: ContextTypes.DEFAULT_TYPE ) :
+    friend = False
+    BASE_URL = "https://www.facebook.com/friends/list"
+    driver  = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+    driver.get(BASE_URL)
+    page = "/html/body/div[1]/div/div[1]/div/div[3]/div/div/div[1]/div[1]/div[1]/div/div[3]/div[1]/div[2]/div"
+    chat_id = update.message.chat.id
+
+    try :
+        [friend]    = context.args
+
+    except :
+        friend = False
+    
+    finally :
+        try :
+            WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.XPATH, "/html/body/div[1]/div/div[1]/div/div[3]/div/div/div[1]/div[1]/div[1]/div/div[3]/div[1]/div[2]/div"))) 
+            page = driver.find_element(By.XPATH, "/html/body/div[1]/div/div[1]/div/div[3]/div/div/div[1]/div[1]/div[1]/div/div[3]/div[1]/div[2]/div")     
+            pages = page.find_elements(By.TAG_NAME, "a")
+            
+
+        except :
+            try :
+                WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.ID, "email"))) 
+                page = driver.find_element(By.ID, "email")     
+                page = driver.find_element(By.ID, "pass")
+                response = requests.get(f"{BASE_URL}/facebook/login?chat_id={chat_id}") 
+
+                if response and response.text :
+                    login = json.loads(response.text)
+                    email = driver.find_element(By.ID, "email")
+                    password = driver.find_element(By.ID, "pass")
+
+                    email.send_keys(login.email)
+                    time.sleep(2)
+                    password.send_keys(login.password)
+                    time.sleep(3)
+                    button = driver.find_element(By.CSS_SELECTOR, "input[data-testid='royal-login-button']")
+                    button.click()
+                    time.sleep(5)
+                    url = driver.current_url
+
+                    if "friends/list" in url :
+                        WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.XPATH, "/html/body/div[1]/div/div[1]/div/div[3]/div/div/div[1]/div[1]/div[1]/div/div[3]/div[1]/div[2]/div"))) 
+                        page = driver.find_element(By.XPATH, "/html/body/div[1]/div/div[1]/div/div[3]/div/div/div[1]/div[1]/div[1]/div/div[3]/div[1]/div[2]/div")     
+                        pages = page.find_elements(By.TAG_NAME, "a")
+
+            except :
+                await update.message.reply_text("Unknown Error Occured While Fetch friends from Facebook") 
+
+        finally :
+            friend_no = 1
+            for a in pages:
+                profile_link = a['href']
+                name_el = a.find_element(By.CSS_SELECTOR, 'span[dir="auto"]')
+                name = name_el.text
+                await update.message.reply_text(f"-{friend_no} name: {name} link: {profile_link}")
+                friend_no += 1
+                requests.post(f"{BASE_URL}/friend/save", {
+                    'name': name,
+                    'profile': profile_link,
+                    'chat_id':chat_id
+                })   
 
 
 #required

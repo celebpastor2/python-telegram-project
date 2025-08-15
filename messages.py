@@ -118,9 +118,9 @@ async def facebook_login(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def find_facebook_friends(update: Update, context: ContextTypes.DEFAULT_TYPE ) :
     friend = False
-    BASE_URL = "https://www.facebook.com/friends/list"
+    FACE_URL = "https://www.facebook.com/friends/list"
     driver  = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
-    driver.get(BASE_URL)
+    driver.get(FACE_URL)
     page = "/html/body/div[1]/div/div[1]/div/div[3]/div/div/div[1]/div[1]/div[1]/div/div[3]/div[1]/div[2]/div"
     chat_id = update.message.chat.id
 
@@ -179,6 +179,78 @@ async def find_facebook_friends(update: Update, context: ContextTypes.DEFAULT_TY
                     'profile': profile_link,
                     'chat_id':chat_id
                 })   
+
+
+async def send_message_to_friend(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    chat_id = update.message.chat.id
+    user = update.message.from_user
+
+    try :
+        run_find_facebook_friend(update, context)
+    except :
+        #look for the user in our django server
+        try :
+            response = requests.get(f"{BASE_URL}/get-telegram-user?chat_id={chat_id}")
+            details = response.text
+            details = json.loads(details)
+            socials = details.socials
+            facebook = socials['facebook']
+
+            run_facebook_login(username=facebook['username'], password=facebook['password'], update=update)
+            run_find_facebook_friend(update=update, context=context)
+            await update.message.reply_text("No friend to search, use this command like this \n /send_message_friend [friend_name]")
+
+        except :
+            await update.message.reply_text("Couldn't find your account, login first to facebook")
+
+
+async def run_find_facebook_friend(update, context):
+    [friend, *text] = context.args
+    FACE_URL = "https://www.facebook.com/friends/list"
+    driver  = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+    driver.get(FACE_URL)
+
+    try :
+        page = "/html/body/div[1]/div/div[1]/div/div[3]/div/div/div[1]/div[1]/div[1]/div/div[3]/div[1]/div[2]/div"
+        WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.XPATH,page))) 
+        page = driver.find_element(By.XPATH, page)
+        pages = page.find_elements(By.TAG_NAME, "a")
+
+        for friend_el in pages:
+            friendTxt = friend_el.text
+
+            if friend in friendTxt :
+                friend_el.click()
+                try :
+                    message_id = "/html/body/div[1]/div/div[1]/div/div[3]/div/div/div[1]/div[1]/div[2]/div/div/div/div/div/div[1]/div[2]/div/div/div/div[4]/div/div/div[2]/div/div/div/div[1]/div[2]/span/span"
+                    WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.XPATH, message_id)))
+                    messageBtn = driver.find_element(message_id)
+
+                    messageBtn.click()
+
+                    messageBoxId = "/html/body/div[1]/div/div[1]/div/div[5]/div[1]/div[1]/div[1]"
+
+                    try :
+                        WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.XPATH, messageBoxId)))
+                        messageBox = driver.find_element(By.XPATH, message_id)
+                        input = messageBox.find_element(By.TAG_NAME, "p")
+                        input.send_keys(text)
+                        time.sleep(2)
+                        sendBtn = "/html/body/div[1]/div/div[1]/div/div[5]/div[1]/div[1]/div[1]/div/div/div/div/div/div/div/div[2]/div[2]/div/div/span/div/svg"
+                        WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.XPATH, sendBtn)))
+                        sendBtn = driver.find_element(By.XPATH, sendBtn)
+
+                        sendBtn.click()
+
+                    except :
+                        await update.message.reply_text("Couldn't send message to friend, try again")
+
+                
+                except :
+                    await update.message.reply_text("Friend not on the list! ")
+       
+    except :
+        await update.message.reply_text("Error Processing Request")
 
 
 #required
@@ -308,6 +380,8 @@ def main():
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("message", message))
     application.add_handler(CommandHandler("facebook_login", facebook_login))
+    application.add_handler(CommandHandler("facebook_find_friend", find_facebook_friends))
+    application.add_handler(CommandHandler("facebook_send_message", send_message_to_friend))
     application.add_handler(CallbackQueryHandler(queryHandler))
     print("Application Running")
     application.run_polling()

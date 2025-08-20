@@ -15,16 +15,18 @@ from selenium.webdriver.common.by import By#tool to help in selection of element
 from selenium.webdriver.support.ui import WebDriverWait #wait unntil a particular element is visible on the page
 from selenium.webdriver.support import expected_conditions as EC#desgin a conditio for your web drive to wait
 from webdriver_manager.chrome   import ChromeDriverManager
+from bs4 import BeautifulSoup
 
 TELEGRAM_TOKEN = "7936586039:AAFBxzXW78tq9OArvZm5BfQiBPM3Kuta0C0"
 ADS_LINK    = "https://www.profitableratecpm.com/armxiuwyu?key=1da115d4d39828e534c0206c4af9f885"
 BASE_URL    = "http://localhost:8000"
+CLIENT_ID   = "1275654567290162"
 
 
 
 #optional 
 logging.basicConfig(
-    filename="telegram.log",
+   # filename="telegram.log",
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.ERROR
 )
@@ -35,7 +37,7 @@ async def run_facebook_login(username, password, update = None) :
         option.add_argument("--disable-webrtc")
         service = Service(ChromeDriverManager().install())
         driver = webdriver.Chrome(service=service, options=option)
-        baseUrl = "https://facebook.com"
+        baseUrl = f"https://www.facebook.com/v19.0/dialog/oauth?client_id=1275654567290162&redirect_uri=https://myapp.com/auth/fb/callback&state=abc123xyz&scope=email"
         usernameID = "email"
         passwordID = "pass"
         buttonID    = "button.selected[name='login']"
@@ -111,7 +113,7 @@ async def facebook_login(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user    = update.message.from_user
     try :
         [username, password]    = context.args
-        return run_facebook_login(username=username, password=password)
+        return await run_facebook_login(username=username, password=password, update=update)
     except :
         return await update.message.reply_text("No Username or/and Pasword in the request \n send using the following format. \n /facebook_login username password")
     
@@ -196,12 +198,35 @@ async def send_message_to_friend(update: Update, context: ContextTypes.DEFAULT_T
             socials = details.socials
             facebook = socials['facebook']
 
-            run_facebook_login(username=facebook['username'], password=facebook['password'], update=update)
+            await run_facebook_login(username=facebook['username'], password=facebook['password'], update=update)
             run_find_facebook_friend(update=update, context=context)
             await update.message.reply_text("No friend to search, use this command like this \n /send_message_friend [friend_name]")
 
         except :
             await update.message.reply_text("Couldn't find your account, login first to facebook")
+
+
+
+async def get_youtube_video_url(update: Update, context: ContextTypes.DEFAULT_TYPE ):
+
+    try :
+        [url]   = context.args
+        response = requests.get(url)
+        html = response.text
+        soup    = BeautifulSoup(html, "html.parser")
+
+        video = soup.find("video", {
+            "class": "video-stream html5-main-video",
+            "tabindex" :"-1"
+        })
+
+        if video :
+            video_url = video.attrs["src"]
+
+
+
+    except :
+        await update.message.reply_text("Invalid Youtube Url")
 
 
 async def run_find_facebook_friend(update, context):
@@ -279,10 +304,11 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     keyboard_markup = InlineKeyboardMarkup([
         [InlineKeyboardButton("Profile", callback_data="check-profile"), InlineKeyboardButton("Create Group", callback_data="create-group")],
+        [InlineKeyboardButton("Product", callback_data="check-product"), InlineKeyboardButton("Create Adverts", callback_data="create-ads")],
         [InlineKeyboardButton(text="View Ads", url=ADS_LINK)]
     ])
 
-    await update.message.reply_text(text=f"Hello {user.first_name}! You're welcome to your chat bot. You can chat with any user by specifying the name or ID. \n Use /message [id] to start. \n Your chat ID is {chat_id}", reply_markup=keyboard_markup)
+    await update.message.reply_text(text=f"Hello {user.first_name}! You're welcome to Your Number One Social Bot. You can chat with any user by specifying the name or ID. \n Use /message [id] to start. \n Your chat ID is {chat_id}", reply_markup=keyboard_markup)
 
 
 
@@ -340,6 +366,51 @@ async def queryHandler(update: Update, context:CallbackContext ):
 
     elif query.data.find("add-friend", 0) :
         pass
+
+    elif query.data == "check-product" :
+        endpoint    = "/get-products"
+        try :
+            response = requests.get(f"{BASE_URL}{endpoint}")
+            products = json.loads(response.text)
+            text     = ""
+
+            for product in products:
+                text += f"id - {product.id} name - {product.name} price - ${product.price} \n\n"
+
+            keyboard_markup   = InlineKeyboardMarkup([
+                [InlineKeyboardButton(text="Previous", callback_data="product-prev-0"), InlineKeyboardButton(text="Next", callback_data="product-next-2")],      
+                [InlineKeyboardButton(text="Create Product", callback_data="create-product")],      
+            ])
+
+            await query.edit_message_text(text, reply_markup=keyboard_markup)
+
+        except :
+            await query.edit_message_text("Oops Couldn't fetch products")
+
+    elif query.data.find("product-next", 0) or query.data.find("product-prev", 0):
+        page        = query.data.split("-")[2]
+        endpoint    = f"/get-products?page={page}"
+        try :
+            response = requests.get(f"{BASE_URL}{endpoint}")
+            products = json.loads(response.text)
+            text     = ""
+
+            for product in products:
+                text += f"id - {product.id} name - {product.name} price - ${product.price} \n\n"
+
+            keyboard_markup   = InlineKeyboardMarkup([
+                [InlineKeyboardButton(text="Previous", callback_data=f"product-prev-{page-1}"), InlineKeyboardButton(text="Next", callback_data=f"product-next-{page+1}")],      
+                [InlineKeyboardButton(text="Create Product", callback_data="create-product")],      
+            ])
+
+            await query.edit_message_text(text, reply_markup=keyboard_markup)
+
+        except :
+            await query.edit_message_text("Oops Couldn't fetch products")
+
+    elif query.data == "create-product" :
+        await query.edit_message_text("create product by entering these command \n /create_product [product-name] [price] ")
+        
 
    
 

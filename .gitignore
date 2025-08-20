@@ -4,3 +4,4 @@ chats
 users
 *.log
 *.git
+.env

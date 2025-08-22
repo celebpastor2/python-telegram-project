@@ -118,8 +118,87 @@ def getAllTelegramPost(request):
         return HttpResponse("{}")
     
 def get_products(request):
-    products = Products.objects.filter(available=True)
-    return render(request, 'products/product_list.html', {'products': products})
+    products = list( Products.objects.select_related("user").filter(available=True))
+    page    = int( request.GET.get("page") )
+
+    if not page :
+        products = products[:15]
+
+    else :
+        start = 15 * page
+        end    = start + 15
+        products = products[start:end]
+
+    products = []
+
+    return HttpResponse(json.dumps(products))
+
+def create_product(request):
+
+    try :
+        name = request.POST.get("name")
+        price = request.POST.get("price")
+        description = request.POST.get("description")
+        stock = int( request.POST.get("stock") )
+        user_id = int( request.POST.get("user") )
+
+        user = TelegramUsers.objects.filter(chat_id=user_id)
+
+        if user :
+            Products.objects.create(name=name, price=price, description=description, stock=stock, user=user)
+            return HttpResponse("Product Successfully Created")
+
+        else : 
+            #link the product t a default 
+            return HttpResponse("No User in Request or User not Register with this bot")     
+
+    except :
+        return HttpResponse("Error Creating product to database")
+    
+def update_product(request):
+
+    try :
+        id = request.POST.get("id")
+        name = request.POST.get("name")
+        price = request.POST.get("price")
+        description = request.POST.get("description")
+        stock = int( request.POST.get("stock") )
+        user_id = int( request.POST.get("user") )
+
+        product = Products.objects.get(_id = id)
+
+        if product :
+            if price :
+                product.price = price
+            
+            if name :
+                product.name = name
+
+            if description :
+                product.description = description
+            
+            if stock :
+                product.stock = stock
+
+            product.save(True)
+            return HttpResponse("Product Successfully Updated")
+        
+        elif name and price and description and stock and user_id :
+            user = TelegramUsers.objects.filter(chat_id=user_id)
+
+            if user :
+                Products.objects.create(name=name, price=price, description=description, stock=stock, user=user)
+                return HttpResponse("Product Successfully Created")
+
+            else : 
+                #link the product t a default 
+                return HttpResponse("No User in Request or User not Register with this bot")
+        else :
+            return HttpResponse("Product Not Found!")     
+
+    except :
+        return HttpResponse("Error Creating product to database")
+    #image = request.FILES.get("image")
 
 
 

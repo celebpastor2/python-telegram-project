@@ -36,5 +36,6 @@ class Products(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.PositiveIntegerField()
     available = models.BooleanField(default=True)
+    user    = models.ForeignKey(TelegramUsers, on_delete=models.RESTRICT, to_field="chat_id")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

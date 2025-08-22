@@ -24,6 +24,7 @@ from telegramApp.views import getAllTelegramFriend
 from telegramApp.views import removeTelegramUserFriend
 from telegramApp.views import addTelegramUserFriend
 from telegramApp.views import getTelegramUser
+from telegramApp.views import get_products
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -34,5 +35,6 @@ urlpatterns = [
     path("get-telegram-friends/", getAllTelegramFriend),
     path("remove-telegram-friends/", removeTelegramUserFriend),
     path("add-telegram-friend/", addTelegramUserFriend),
-    path("get-telegram-user/", getTelegramUser)
+    path("get-telegram-user/", getTelegramUser),
+    path('api/products/', get_products, name='get_products')
 ]

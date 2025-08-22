@@ -29,3 +29,12 @@ class Friends(models.Model):
     chat_id = models.BigIntegerField()
     user_id = models.BigIntegerField()
     telegram =  models.ForeignKey(TelegramUsers, on_delete=models.RESTRICT, to_field="chat_id", default=None)
+
+class Products(models.Model):
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    stock = models.PositiveIntegerField()
+    available = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)

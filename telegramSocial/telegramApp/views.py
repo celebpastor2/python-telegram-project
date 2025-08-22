@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from .models import TelegramUsers
 from .models import Friends
+from .models import Products
 import json
 
 
@@ -115,6 +116,10 @@ def getAllTelegramPost(request):
     
     else :
         return HttpResponse("{}")
+    
+def get_products(request):
+    products = Products.objects.filter(available=True)
+    return render(request, 'products/product_list.html', {'products': products})
 
 
 

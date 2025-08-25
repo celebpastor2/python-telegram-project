@@ -146,7 +146,8 @@ async def queryHandler(update: Update, context:CallbackContext ):
             await query.edit_message_text(f"Group Not Successfully Created")
 
     elif query.data == "check-profile" :
-         await query.edit_message_text(f"Input(First Name:" " \n Last Name:" " \n Phone number: " " \n Username: " " \n Location: " ")")
+         
+         await query.edit_message_text(f"First Name: " " \n Last Name:" " \n Phone number: " " \n Username: " " \n Location: " )
 
     elif query.data.find("add-friend", 0) :
         pass
@@ -234,8 +235,8 @@ def main():
     application = Application.builder().token(TELEGRAM_TOKEN).build()
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("message", message))
-    application.add_handler(CommandHandler("create-product", create_product))
-    application.add_handler(CommandHandler("update-product", update_product))
+    application.add_handler(CommandHandler("createProduct", create_product))
+    application.add_handler(CommandHandler("updateProduct", update_product))
     application.add_handler(CallbackQueryHandler(queryHandler))
     print("Application Running")
     application.run_polling()

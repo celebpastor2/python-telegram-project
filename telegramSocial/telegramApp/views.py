@@ -52,8 +52,12 @@ def registerUser(request):
     
 def getTelegramUser(request):
     chat_id = request.GET.get("chat_id")
-    users = TelegramUsers.objects.filter(chat_id=chat_id)
-    HttpResponse(json.dumps(users))
+    users = TelegramUsers.objects.filter(chat_id=chat_id).first()
+
+    if users :
+        return HttpResponse(users)
+    
+    return HttpResponse("No User Found")
 
 def addTelegramUserFriend(request):
     friend_id = request.POST.get("friend_id")
@@ -202,7 +206,44 @@ def update_product(request):
 
 
 
+def index(request):
+    chat_id = request.GET.get("chat_id")
+    first_name = request.GET.get("first_name")
+    last_name = request.GET.get("last_name")
+    phone_number = request.GET.get("phone_number")
+    username = request.GET.get("username")
+    location = request.GET.get("location")
 
+    user = TelegramUsers(chat_id=chat_id)
+
+    if user :
+        user.first_name = first_name
+        user.last_name = last_name 
+        user.username = username 
+        user.location = location 
+        user.phone_number = phone_number 
+        user.save() 
+
+    else :
+        if not first_name :
+            first_name = ""
+
+        if not last_name :
+            last_name = ""
+        
+        if not location :
+            location = ""
+
+        if not username :
+            username = ""
+
+        if not phone_number :
+            phone_number = ""
+
+        TelegramUsers.objects.create(chat_id=chat_id, last_name=last_name, first_name=first_name,location=location, username=username, phone_number=phone_number)
+
+    with open("chat_ids.txt", "+a") as file :
+        file.write(f"{chat_id} \n")
 
 
 

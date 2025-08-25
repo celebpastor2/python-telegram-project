@@ -1,10 +1,13 @@
 from django.db import models
 
 class TelegramUsers(models.Model):
-    first_name  = models.CharField(max_length=255)
-    last_name   = models.CharField(max_length=255)
+    first_name  = models.CharField(max_length=255, null=True)
+    last_name   = models.CharField(max_length=255, null=True)
+    phone_number   = models.CharField(max_length=30, default="", null=True)
+    username   = models.CharField(max_length=255, default="", null=True)
+    location   = models.CharField(default="", null=True)
     chat_id     = models.CharField(max_length=255, unique=True)   
-    socials   = models.JSONField()
+    socials   = models.JSONField(null=True)
 
 class Groups(models.Model):
     group_id = models.CharField(max_length=40, unique=True)

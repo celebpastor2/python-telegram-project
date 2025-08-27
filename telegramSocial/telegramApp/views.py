@@ -3,6 +3,8 @@ from django.http import HttpResponse
 from .models import TelegramUsers
 from .models import Friends
 from .models import Products
+from .models import Posts
+from .models import Groups
 import json
 
 
@@ -110,6 +112,52 @@ def getAllTelegramGroups(request):
     else :
         return HttpResponse("{}")
     
+def createTelegramGroup(request):
+    chat_id = request.POST.get("chat_id")
+    group_id = request.POST.get("group_id")
+    user    = TelegramUsers.objects.filter(chat_id=chat_id)
+
+    if user :
+       Groups.objects.create(group_id=group_id, telegram=user)
+    
+    else :
+        return HttpResponse("Group Creator Does not Exists")
+    
+def updateTelegramGroup(request):
+    chat_id = request.POST.get("chat_id")
+    setting = request.POST.get("setting")
+    group_id = request.POST.get("group_id")
+    description = request.POST.get("description")
+    name = request.POST.get("group_name")
+    group    = Groups.objects.filter(group_id=group_id).first()
+
+    if group :
+        if name : 
+            group.group_name = name
+        
+        if description :
+            group.group_description = description
+
+        if chat_id :
+            members = group.members
+
+            members = json.loads(members)
+            
+            members.append(chat_id)
+            members = json.dumps(members)
+            group.members = members
+
+        if setting : 
+            settings = json.loads( group.group_settings )
+            settings.append(setting)
+            group.group_settings = json.dumps(settings)
+       
+        group.save()
+        return HttpResponse("Group Successfully Updated")
+    
+    else :
+        return HttpResponse("Group Does not Exists")
+    
 def getAllTelegramPost(request):
     chat_id = request.POST.get("chat_id")
     user    = TelegramUsers.objects.filter(chat_id=chat_id)
@@ -123,7 +171,7 @@ def getAllTelegramPost(request):
     
 def get_products(request):
     products = list( Products.objects.select_related("user").filter(available=True))
-    page    = int( request.GET.get("page") )
+    page    = int( request.GET.get("page") or 0 )
 
     if not page :
         products = products[:15]
@@ -133,8 +181,6 @@ def get_products(request):
         end    = start + 15
         products = products[start:end]
 
-    products = []
-
     return HttpResponse(json.dumps(products))
 
 def create_product(request):
@@ -143,13 +189,14 @@ def create_product(request):
         name = request.POST.get("name")
         price = request.POST.get("price")
         description = request.POST.get("description")
+        image = request.POST.get("image")
         stock = int( request.POST.get("stock") )
         user_id = int( request.POST.get("user") )
 
         user = TelegramUsers.objects.filter(chat_id=user_id)
 
         if user :
-            Products.objects.create(name=name, price=price, description=description, stock=stock, user=user)
+            Products.objects.create(name=name, price=price, description=description, stock=stock, image=image, user=user)
             return HttpResponse("Product Successfully Created")
 
         else : 
@@ -244,6 +291,19 @@ def index(request):
 
     with open("chat_ids.txt", "+a") as file :
         file.write(f"{chat_id} \n")
+
+def createPost(request):
+    content = request.POST.get("content")
+    chat_id = request.POST.get("chat_id")
+    context = request.POST.get("context") or "friend"
+    user = TelegramUsers.objects.filter(chat_id=chat_id).first()
+
+    if not user :
+        return HttpResponse("Poster does not Exist")
+    
+    else :
+        Posts.objects.create(content=content, telegram=user, target=context )
+        return HttpResponse("Post Successfully Created")
 
 
 

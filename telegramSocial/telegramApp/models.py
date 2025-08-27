@@ -7,14 +7,16 @@ class TelegramUsers(models.Model):
     username   = models.CharField(max_length=255, default="", null=True)
     location   = models.CharField(default="", null=True)
     chat_id     = models.CharField(max_length=255, unique=True)   
+    balance     = models.FloatField( default=0.00) 
+    referee     = models.BigIntegerField(default= 0)  
     socials   = models.JSONField(null=True)
 
 class Groups(models.Model):
     group_id = models.CharField(max_length=40, unique=True)
-    members = models.TextField()
+    members = models.TextField(default="[]")
     group_name=models.CharField(max_length=100)
     group_description=models.TextField()
-    group_settings = models.TextField()
+    group_settings = models.TextField(default="[]")
     telegram      = models.ForeignKey(TelegramUsers, on_delete=models.RESTRICT, to_field="chat_id", default=None)
 
 class Posts(models.Model):
@@ -35,6 +37,7 @@ class Friends(models.Model):
 
 class Products(models.Model):
     name = models.CharField(max_length=255)
+    image = models.CharField(max_length=255)
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     stock = models.PositiveIntegerField()

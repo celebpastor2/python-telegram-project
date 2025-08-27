@@ -28,6 +28,10 @@ from telegramApp.views import get_products
 from telegramApp.views import create_product
 from telegramApp.views import update_product
 from telegramApp.views import index
+from telegramApp.views import createTelegramGroup
+from telegramApp.views import updateTelegramGroup
+from telegramApp.views import createPost
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -35,11 +39,14 @@ urlpatterns = [
     path('class/', RegisterUser),
     path("exists/", userExist),
     path("get-telegram-group/", getAllTelegramGroups),
+    path("create-user-group/", createTelegramGroup),
+    path("update-user-group/", updateTelegramGroup),
     path("get-telegram-friends/", getAllTelegramFriend),
     path("remove-telegram-friends/", removeTelegramUserFriend),
     path("add-telegram-friend/", addTelegramUserFriend),
     path("get-telegram-user/", getTelegramUser),
     path('get-products/', get_products, name='get_products'),
+    path('create-post/', createPost),
     path('create-product/', create_product, name='create_product'),
     path('update-product/', update_product, name='update_product'),
     path("", index)

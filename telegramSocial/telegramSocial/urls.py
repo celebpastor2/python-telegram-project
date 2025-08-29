@@ -21,6 +21,7 @@ from telegramApp.views import RegisterUser
 from telegramApp.views import userExist
 from telegramApp.views import getAllTelegramGroups
 from telegramApp.views import getAllTelegramFriend
+from telegramApp.views import getAllTelegramUser
 from telegramApp.views import removeTelegramUserFriend
 from telegramApp.views import addTelegramUserFriend
 from telegramApp.views import getTelegramUser
@@ -45,6 +46,7 @@ urlpatterns = [
     path("remove-telegram-friends/", removeTelegramUserFriend),
     path("add-telegram-friend/", addTelegramUserFriend),
     path("get-telegram-user/", getTelegramUser),
+    path("get-telegram-users/", getAllTelegramUser),
     path('get-products/', get_products, name='get_products'),
     path('create-post/', createPost),
     path('create-product/', create_product, name='create_product'),

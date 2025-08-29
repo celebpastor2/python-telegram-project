@@ -1,5 +1,7 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
+from django.core import serializers
+from django.forms.models import model_to_dict
 from .models import TelegramUsers
 from .models import Friends
 from .models import Products
@@ -57,9 +59,14 @@ def getTelegramUser(request):
     users = TelegramUsers.objects.filter(chat_id=chat_id).first()
 
     if users :
-        return HttpResponse(users)
+        return JsonResponse(model_to_dict(users))
     
     return HttpResponse("No User Found")
+
+def getAllTelegramUser(request):
+    users = TelegramUsers.objects.all()
+    users = [model_to_dict(u) for u in users]
+    return JsonResponse(users)
 
 def addTelegramUserFriend(request):
     friend_id = request.POST.get("friend_id")
@@ -92,14 +99,14 @@ def removeTelegramUserFriend(request):
 
 def getAllTelegramFriend(request):
     chat_id = request.POST.get("chat_id")
-    user    = TelegramUsers.objects.filter(chat_id=chat_id)
+    user    = TelegramUsers.objects.filter(chat_id=chat_id).first()
     friends = user.select_related("friends")
 
     if friends :
-        return HttpResponse(json.dumps(friends))
+        return JsonResponse([model_to_dict(f) for f in friends ])
     
     else :
-        return HttpResponse("{}")
+        return HttpResponse("[]")
     
 def getAllTelegramGroups(request):
     chat_id = request.POST.get("chat_id")
@@ -107,7 +114,7 @@ def getAllTelegramGroups(request):
     groups = user.select_related("groups")
 
     if groups :
-        return HttpResponse(json.dumps(groups))
+        return HttpResponse(serializers.serialize("json", groups))
     
     else :
         return HttpResponse("{}")
@@ -164,7 +171,7 @@ def getAllTelegramPost(request):
     posts = user.select_related("posts")
 
     if posts :
-        return HttpResponse(json.dumps(posts))
+        return HttpResponse(serializers.serialize("json",posts))
     
     else :
         return HttpResponse("{}")
@@ -181,7 +188,7 @@ def get_products(request):
         end    = start + 15
         products = products[start:end]
 
-    return HttpResponse(json.dumps(products))
+    return HttpResponse(serializers.serialize("json", products))
 
 def create_product(request):
 

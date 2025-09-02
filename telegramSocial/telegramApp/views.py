@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from django.core import serializers
+from django.views.decorators.csrf import csrf_exempt
 from django.forms.models import model_to_dict
 from .models import TelegramUsers
 from .models import Friends
@@ -66,7 +67,7 @@ def getTelegramUser(request):
 def getAllTelegramUser(request):
     users = TelegramUsers.objects.all()
     users = [model_to_dict(u) for u in users]
-    return JsonResponse(users)
+    return JsonResponse(users,safe=False)
 
 def addTelegramUserFriend(request):
     friend_id = request.POST.get("friend_id")
@@ -96,11 +97,15 @@ def removeTelegramUserFriend(request):
     else :
         return HttpResponse("Friend not found")
     
-
+@csrf_exempt
 def getAllTelegramFriend(request):
     chat_id = request.POST.get("chat_id")
     user    = TelegramUsers.objects.filter(chat_id=chat_id).first()
-    friends = user.select_related("friends")
+
+    if not user :
+        return HttpResponse("['user not found']")
+
+    friends = Friends.objects.filter(chat_id=user.chat_id )
 
     if friends :
         return JsonResponse([model_to_dict(f) for f in friends ])

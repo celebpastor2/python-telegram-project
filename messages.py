@@ -105,7 +105,7 @@ async def refer(update: Update, context: ContextTypes.DEFAULT_TYPE ):
 async def create_product(update: Update, context: ContextTypes.DEFAULT_TYPE ) :
     try :
         [name, price, image_url, stock, *description] = context.args
-        endpoint = "/create-product"
+        endpoint = "/create-product/"
         data = {
             'name'  : name,
             'price'   : price,
@@ -121,7 +121,7 @@ async def create_product(update: Update, context: ContextTypes.DEFAULT_TYPE ) :
 async def update_product(update: Update, context: ContextTypes.DEFAULT_TYPE ) :
     try :
         [name, price, stock, *description] = context.args
-        endpoint = "/update-product"
+        endpoint = "/update-product/"
         data = {
             'name'  : name,
             'price'   : price,
@@ -137,7 +137,7 @@ async def update_product(update: Update, context: ContextTypes.DEFAULT_TYPE ) :
 async def addGroupMembers(update: Update, context: ContextTypes.DEFAULT_TYPE ):
     try :
         [group_id, member_id] = context.args
-        endpoint = "/update-user-group"
+        endpoint = "/update-user-group/"
 
         data = {
             "group_id"  : group_id,
@@ -153,7 +153,7 @@ async def addGroupMembers(update: Update, context: ContextTypes.DEFAULT_TYPE ):
 async def updateGroup(update: Update, context: ContextTypes.DEFAULT_TYPE ):
     try :
         [group_id, group_name, *description] = context.args
-        endpoint = "/update-user-group"
+        endpoint = "/update-user-group/"
 
         data = {
             "group_id"  : group_id,
@@ -196,7 +196,7 @@ async def queryHandler(update: Update, context:CallbackContext ):
                 }
                 group_members.append(usered)
                 file.write(json.dumps( group_members ))"""
-        endpoint = "/create-user-group"
+        endpoint = "/create-user-group/"
         data = {
             'group_id'  : group_id,
             'chat_id'   : chat_id,
@@ -230,16 +230,21 @@ async def queryHandler(update: Update, context:CallbackContext ):
 
         
         keyboard_markup = InlineKeyboardMarkup([
-                [InlineKeyboardButton(text="View Friends", callback_data="view-friends"),InlineKeyboardButton(text="Make Friends", callback_data="make-friends")],      
+                [InlineKeyboardButton(text="View Friends", callback_data="viewfriends"),InlineKeyboardButton(text="Make Friends", callback_data="makefriends")],      
             ])
 
         await query.edit_message_text(f"First Name: {first_name}" f" \n Last Name: {last_name}" f" \n Phone number: {phone_number}" f" \n Username: {username}" f" \n Location: {location}" f" \n Balance: {balance}" , reply_markup=keyboard_markup)
 
-    elif query.data == "view-friends" :
-        endpoint = f"/get-telegram-friends?chat_id={chat_id}"
-        response = requests.get(f"{BASE_URL}{endpoint}")
+    elif query.data.lower() == "viewfriends" :
+        print("viewing friends...")
+        endpoint = f"/get-telegram-friends/"
+        data = {
+            "chat_id"   : chat_id
+        }
+        response = requests.post(f"{BASE_URL}{endpoint}", data=data)
+        print("response from friends server: ", response.text )
         keyboard_markup = InlineKeyboardMarkup([
-                [InlineKeyboardButton(text="View Profile", callback_data="check-profile"),InlineKeyboardButton(text="Make Friends", callback_data="make-friends")],      
+                [InlineKeyboardButton(text="View Profile", callback_data="check-profile"),InlineKeyboardButton(text="Make Friends", callback_data="makefriends")],      
             ])
         if response.text :
             friends = json.loads(response.text)
@@ -253,22 +258,29 @@ async def queryHandler(update: Update, context:CallbackContext ):
 
         else :
             await query.edit_message_text("No friends found", reply_markup=keyboard_markup)
-    elif query.data == "make-friends" :
-        endpoint = "/get-telegram-users"
-        response = requests.get(f"{BASE_URL}{endpoint}")
 
+        return
+    elif query.data == "makefriends" :
+        endpoint = "/get-telegram-users/"
+        response = requests.get(f"{BASE_URL}{endpoint}")
+        print("response for all users ", response.text )
         if response.text :
-            users = json.loads(response.text)
-            users = random.shuffle(users)
-            users = users[:15]
+            users = list( json.loads(response.text) )
+            random.shuffle(users)
+            print(type(users))
+            if len(users) > 15 :
+                users = users[:15]
+
             text  = ""
             for user in users :
-                text += f"{user['username']} {user['chat_id']}"
+                text += f"username - {user['username']} chat ID - {user['chat_id']} \n"
+
+            text += "run /addFriend [friend_id] to add any friend from the list"
 
             await query.edit_message_text(text)
         else :
             await query.edit_message_text("User not found")
-            
+        return
     elif query.data == "check-product" :
         endpoint    = "/get-products"
         try :
@@ -294,7 +306,7 @@ async def queryHandler(update: Update, context:CallbackContext ):
             print(f"error fetching product {e}")
             await query.edit_message_text("Oops Couldn't fetch products")
 
-    elif query.data.find("product-next", 0) or query.data.find("product-prev", 0):
+    elif "product-next" in query.data or "product-prev" in query.data:
         page        = query.data.split("-")[2]
         endpoint    = f"/get-products?page={page}"
         try :
@@ -328,7 +340,7 @@ async def addFriend(update:Update, context: ContextTypes.DEFAULT_TYPE ):
         user = update.message.from_user
         chat_id = update.message.chat.id
         
-        endpoint = "/add-telegram-friend"
+        endpoint = "/add-telegram-friend/"
         data = {
             "friend_id" : id,
             "chat_id"   : chat_id
@@ -351,7 +363,7 @@ async def createPost(update:Update, context: ContextTypes.DEFAULT_TYPE ):
         user = update.message.from_user
         chat_id = update.message.chat.id
         
-        endpoint = "/create-post"
+        endpoint = "/create-post/"
         data = {
             "chat_id"   : chat_id,
             "content"   : content
@@ -361,7 +373,7 @@ async def createPost(update:Update, context: ContextTypes.DEFAULT_TYPE ):
 
         await update.message.reply_text(response.text)
 
-        endpoint = "/get-telegram-friends"
+        endpoint = "/get-telegram-friends/"
         data = {
             "chat_id"   : chat_id
         }
@@ -390,7 +402,7 @@ async def createGroupPost(update:Update, context: ContextTypes.DEFAULT_TYPE ):
         user = update.message.from_user
         chat_id = update.message.chat.id
         
-        endpoint = "/create-post"
+        endpoint = "/create-post/"
         data = {
             "chat_id"   : chat_id,
             "content"   : content,
@@ -402,7 +414,7 @@ async def createGroupPost(update:Update, context: ContextTypes.DEFAULT_TYPE ):
 
         await update.message.reply_text(response.text)
 
-        endpoint = "/get-group-memebers"
+        endpoint = "/get-group-memebers/"
         data = {
             "group_id"   : group_id
         }
@@ -432,7 +444,7 @@ async def acceptFriendRequest(update:Update, context: ContextTypes.DEFAULT_TYPE 
         user = update.message.from_user
         chat_id = update.message.chat.id
         
-        """endpoint = "/accept-telegram-friend"
+        """endpoint = "/accept-telegram-friend/"
         data = {
             "friend_id" : id,
             "chat_id"   : chat_id

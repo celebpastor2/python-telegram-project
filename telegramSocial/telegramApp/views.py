@@ -279,8 +279,8 @@ def index(request):
         user.first_name = first_name
         user.last_name = last_name 
         user.username = username 
-        user.location = location 
-        user.phone_number = phone_number 
+        user.location = location or ""
+        user.phone_number = phone_number or ""
         user.save() 
 
     else :

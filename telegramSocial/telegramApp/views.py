@@ -8,6 +8,8 @@ from .models import Friends
 from .models import Products
 from .models import Posts
 from .models import Groups
+from .models import Topup
+
 import json
 
 
@@ -15,6 +17,13 @@ class RegisterUser():
     people = []
     def get(request):
         render("index")
+
+    
+
+def product_create_page(request):
+    
+    return render("product_create.html")
+
 
     def post(request):
         details = request.POST
@@ -316,6 +325,27 @@ def createPost(request):
     else :
         Posts.objects.create(content=content, telegram=user, target=context )
         return HttpResponse("Post Successfully Created")
+    
+
+def topup(request):
+    chat_id = request.POST.get("chat_id")
+    payload = request.POST.get("payload")
+    title = request.POST.get("title")
+    description = request.POST.get("description")
+    email = request.POST.get("email")
+    name = request.POST.get("name")
+    phone_number = request.POST.get("phone_number")
+    shipping_address = request.POST.get("shipping_address")
+    currency = request.POST.get("currency")
+    price = request.POST.get("price")
+    
+
+    topup = Topup.objects.filter(chat_id=chat_id, payload=payload, title=title, description=description, email=email, name=name, phone_number=phone_number, shipping_address=shipping_address, currency=currency, price=price, ) 
+
+    if  topup :
+        return HttpResponse("This is Topup page")
+    else:
+        return HttpResponse("Can't find topup balance")
 
 
 

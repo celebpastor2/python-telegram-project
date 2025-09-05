@@ -26,8 +26,6 @@ class Posts(models.Model):
     telegram       = models.ForeignKey(TelegramUsers, on_delete=models.RESTRICT, to_field="chat_id", default=None)
 
 
-# Create your models here.
-
 
 class Friends(models.Model):
     friend_id = models.CharField(unique=True, max_length=100)
@@ -45,3 +43,15 @@ class Products(models.Model):
     user    = models.ForeignKey(TelegramUsers, on_delete=models.RESTRICT, to_field="chat_id")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+class Topup(models.Model):
+    chat_id = models.CharField(max_length=255, unique=True)
+    payload = models.JSONField()
+    name = models.CharField(max_length=255)
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    email = models.JSONField()
+    phone_number   = models.CharField(max_length=30, default="", null=True)
+    shipping_address = models.CharField(max_length=255)
+    currency = models.DecimalField(max_digits=10, decimal_places=2)
+    price = models.DecimalField(max_digits=10, decimal_places=2)

@@ -32,6 +32,7 @@ from telegramApp.views import index
 from telegramApp.views import createTelegramGroup
 from telegramApp.views import updateTelegramGroup
 from telegramApp.views import createPost
+from telegramApp.views import topup
 
 
 urlpatterns = [
@@ -51,5 +52,6 @@ urlpatterns = [
     path('create-post/', createPost),
     path('create-product/', create_product, name='create_product'),
     path('update-product/', update_product, name='update_product'),
+     path('topup/', topup),
     path("", index)
 ]

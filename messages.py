@@ -25,7 +25,7 @@ from post import createPost
 
 #xTIC8lUd7N
 
-TELEGRAM_TOKEN = "7936586039:AAFBxzXW78tq9OArvZm5BfQiBPM3Kuta0C0"
+TELEGRAM_TOKEN = "8446176836:AAGcPgTP9HRfp4g9qeoMnNIV2akVnjaa5WM"
 
 
 
@@ -98,6 +98,8 @@ def main():
     application.add_handler(CommandHandler("updateProduct", update_product))
     application.add_handler(CommandHandler("addGroupMembers", addGroupMembers))
     application.add_handler(CommandHandler("addFriend", addFriend))
+    application.add_handler(CommandHandler("createGroupPost", createGroupPost))
+    application.add_handler(CommandHandler("createPost", createPost))
     application.add_handler(CommandHandler("acceptRequest", acceptFriendRequest))
     application.add_handler(CommandHandler("updateGroup", updateGroup))
     application.add_handler(CommandHandler("referee", refer))

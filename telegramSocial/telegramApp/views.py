@@ -22,23 +22,24 @@ class RegisterUser():
 
 def product_create_page(request):
     
-    return render("product_create.html")
+    return render(request, "product_create.html")
 
 
-    def post(request):
-        details = request.POST
 
-        try :
-            TelegramUsers.objects.create(chat_id=details['chat_id'], first_name=details['first_name'])
-            gramUsers = TelegramUsers()
-            gramUsers.chat_id = details['chat_id']
-            gramUsers.first_name = details['first_name']
-            gramUsers.save()
-        except :
-            return HttpResponse("Error Registering User")
-    
-    def put(request):
-        return HttpResponse("You've made a put request on this server")
+def post(request):
+    details = request.POST
+
+    try :
+        TelegramUsers.objects.create(chat_id=details['chat_id'], first_name=details['first_name'])
+        gramUsers = TelegramUsers()
+        gramUsers.chat_id = details['chat_id']
+        gramUsers.first_name = details['first_name']
+        gramUsers.save()
+    except :
+        return HttpResponse("Error Registering User")
+
+def put(request):
+    return HttpResponse("You've made a put request on this server")
 
 # Create your views here.
 def name(request):
@@ -210,11 +211,16 @@ def create_product(request):
         name = request.POST.get("name")
         price = request.POST.get("price")
         description = request.POST.get("description")
-        image = request.POST.get("image")
+        image = request.POST.get("image")#this works with telegram bot
         stock = int( request.POST.get("stock") )
         user_id = int( request.POST.get("user") )
 
-        user = TelegramUsers.objects.filter(chat_id=user_id)
+        if not image: 
+            image = request.FILES.get("image")
+
+        user = TelegramUsers.objects.get(chat_id=user_id)
+
+        print(model_to_dict(user))
 
         if user :
             Products.objects.create(name=name, price=price, description=description, stock=stock, image=image, user=user)
@@ -224,7 +230,8 @@ def create_product(request):
             #link the product t a default 
             return HttpResponse("No User in Request or User not Register with this bot")     
 
-    except :
+    except Exception as e:
+        print(e)
         return HttpResponse("Error Creating product to database")
     
 def update_product(request):

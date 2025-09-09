@@ -24,6 +24,10 @@ def product_create_page(request):
     
     return render(request, "product_create.html")
 
+def create_post_page(request):
+
+    return render(request, "create_post.html")
+
 
 
 def post(request):
@@ -332,6 +336,19 @@ def createPost(request):
     else :
         Posts.objects.create(content=content, telegram=user, target=context )
         return HttpResponse("Post Successfully Created")
+    
+def share_post(request, post_id):
+    post_id = request.POST.get("post_id")
+    original_post = request.POST.get(Posts, id=post_id)
+    shared_at = request.POST.get("shared_at")
+    shared_by = request.POST.get("shared_by")
+    sharedpost = Posts.objects.create(user=request.user, content=original_post.content, shared_from=original_post, shared_at=shared_at, shared_by=shared_by)
+
+    if sharedpost:
+        return HttpResponse("post_list")
+    
+    else:
+        return HttpResponse("Can't share post")
     
 
 def topup(request):

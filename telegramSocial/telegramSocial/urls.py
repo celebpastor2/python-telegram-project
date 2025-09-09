@@ -34,6 +34,8 @@ from telegramApp.views import updateTelegramGroup
 from telegramApp.views import createPost
 from telegramApp.views import topup
 from telegramApp.views import product_create_page
+from telegramApp.views import share_post
+from telegramApp.views import create_post_page
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -55,5 +57,7 @@ urlpatterns = [
      path('topup/', topup),
     path("", index),
     path("create-page/", product_create_page),
+    path("post-page/", create_post_page),
+    path("share-post/", share_post),
     path("submit-product/", create_product)
 ]

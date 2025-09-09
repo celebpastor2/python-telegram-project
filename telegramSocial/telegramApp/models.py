@@ -25,6 +25,13 @@ class Posts(models.Model):
     target  = models.CharField(max_length=10)    
     telegram       = models.ForeignKey(TelegramUsers, on_delete=models.RESTRICT, to_field="chat_id", default=None)
 
+class Sharedpost(models.Model):
+    post_id = models.CharField(max_length=30, unique=True) 
+    original_post = models.ForeignKey(Posts, on_delete=models.CASCADE, related_name='shares')
+    shared_at = models.DateTimeField(auto_now_add=True)
+    shared_by = models.DateTimeField(auto_now_add=True)
+
+
 
 
 class Friends(models.Model):
@@ -55,3 +62,4 @@ class Topup(models.Model):
     shipping_address = models.CharField(max_length=255)
     currency = models.DecimalField(max_digits=10, decimal_places=2)
     price = models.DecimalField(max_digits=10, decimal_places=2)
+    

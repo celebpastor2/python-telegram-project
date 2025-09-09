@@ -45,3 +45,25 @@ async def createPost(update:Update, context: ContextTypes.DEFAULT_TYPE ):
         keyboard_markup = InlineKeyboardMarkup([[InlineKeyboardButton("Accept Friend Request", callback_data=f"add-friend-{chat_id}")], [InlineKeyboardButton("View Ads", url=ADS_LINK)]])
         await update.message.reply_text("Error Send Request \n Ensure your request was formatted like this \n /friend [id] ", reply_markup=keyboard_markup)
 
+async def Sharepost(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    try:
+        [*content] = context.args
+        user = update.message.from_user
+        chat_id = update.message.chat.id
+
+        endpoint = "/share-post/"
+
+        payload = {
+            "user": user,
+            "chat_id": chat_id,
+            "text": content
+        }
+
+        response = requests.post(f"{BASE_URL}{endpoint}", payload=payload)
+
+        return response.json()
+    
+    except Exception as e :
+        await update.message.reply_text("You can't share post")
+
+

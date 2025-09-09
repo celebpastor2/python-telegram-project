@@ -182,175 +182,182 @@ async def topup_balance(update: Update, context: CallbackContext) :
     user = update.effective_user
     chat_id = update.effective_chat.id
     payload = generateTxt(15)
-
-    if query.data == "load-five" :
-        context.bot.send_invoice(
-            chat_id = chat_id,
-            payload = payload,
-            title   = "$5 Loading",
-            description = "Payment for Loading $5 to Balance",
-            need_email = True,
-            need_name = True,
-            need_phone_number = False,
-            need_shipping_address = False,
-            currency = "USD",
-            price = LabeledPrice("Loading $5", 5),
-            provider_token = PROVIDER_TOKEN
-        )
-    elif query.data == "load-ten" :
-        context.bot.send_invoice(
-            chat_id = chat_id,
-            payload = payload,
-            title   = "$10 Loading",
-            description = "Payment for Loading $10 to Balance",
-            need_email = True,
-            need_name = True,
-            need_phone_number = False,
-            need_shipping_address = False,
-            currency = "USD",
-            price = LabeledPrice("Loading $10", 10),
-            provider_token = PROVIDER_TOKEN
-        )
-    elif query.data == "load-twenty" :
-        context.bot.send_invoice(
-            chat_id = chat_id,
-            payload = payload,
-            title   = "$20 Loading",
-            description = "Payment for Loading $20 to Balance",
-            need_email = True,
-            need_name = True,
-            need_phone_number = False,
-            need_shipping_address = False,
-            currency = "USD",
-            price = LabeledPrice("Loading $20", 20),
-            provider_token = PROVIDER_TOKEN
-        )
-    elif query.data == "load-fifty" :
-        context.bot.send_invoice(
-            chat_id = chat_id,
-            payload = payload,
-            title   = "$50 Loading",
-            description = "Payment for Loading $50 to Balance",
-            need_email = True,
-            need_name = True,
-            need_phone_number = False,
-            need_shipping_address = False,
-            currency = "USD",
-            price = LabeledPrice("Loading $50", 50),
-            provider_token = PROVIDER_TOKEN
-        )
-    elif query.data == "load-hundred" :
-        context.bot.send_invoice(
-            chat_id = chat_id,
-            payload = payload,
-            title   = "$100 Loading",
-            description = "Payment for Loading $100 to Balance",
-            need_email = True,
-            need_name = True,
-            need_phone_number = False,
-            need_shipping_address = False,
-            currency = "USD",
-            price = LabeledPrice("Loading $100", 100),
-            provider_token = PROVIDER_TOKEN
-        )
-    elif query.data == "load-two-hundred" :
-        context.bot.send_invoice(
-            chat_id = chat_id,
-            payload = payload,
-            title   = "$200 Loading",
-            description = "Payment for Loading $200 to Balance",
-            need_email = True,
-            need_name = True,
-            need_phone_number = False,
-            need_shipping_address = False,
-            currency = "USD",
-            price = LabeledPrice("Loading $200", 200),
-            provider_token = PROVIDER_TOKEN
-        )
-    elif query.data == "load-five-hundred" :
-        context.bot.send_invoice(
-            chat_id = chat_id,
-            payload = payload,
-            title   = "$500 Loading",
-            description = "Payment for Loading $500 to Balance",
-            need_email = True,
-            need_name = True,
-            need_phone_number = False,
-            need_shipping_address = False,
-            currency = "USD",
-            price = LabeledPrice("Loading $500", 500),
-            provider_token = PROVIDER_TOKEN
-        )
-    elif query.data == "load-one-thousand" :
-        context.bot.send_invoice(
-            chat_id = chat_id,
-            payload = payload,
-            title   = "$1000 Loading",
-            description = "Payment for Loading $1000 to Balance",
-            need_email = True,
-            need_name = True,
-            need_phone_number = False,
-            need_shipping_address = False,
-            currency = "USD",
-            price = LabeledPrice("Loading $1000", 1000),
-            provider_token = PROVIDER_TOKEN
-        )
-    elif query.data == "load-two-thousand" :
-        context.bot.send_invoice(
-            chat_id = chat_id,
-            payload = payload,
-            title   = "$2000 Loading",
-            description = "Payment for Loading $2000 to Balance",
-            need_email = True,
-            need_name = True,
-            need_phone_number = False,
-            need_shipping_address = False,
-            currency = "USD",
-            price = LabeledPrice("Loading $2000", 2000),
-            provider_token = PROVIDER_TOKEN
-        )
-    elif query.data == "load-five-thousand" :
-        context.bot.send_invoice(
-            chat_id = chat_id,
-            payload = payload,
-            title   = "$5000 Loading",
-            description = "Payment for Loading $5000 to Balance",
-            need_email = True,
-            need_name = True,
-            need_phone_number = False,
-            need_shipping_address = False,
-            currency = "USD",
-            price = LabeledPrice("Loading $5000", 5000),
-            provider_token = PROVIDER_TOKEN
-        )
-    elif query.data == "load-one" :
-        context.bot.send_invoice(
-            chat_id = chat_id,
-            payload = payload,
-            title   = "$1 Loading",
-            description = "Payment for Loading $1 to Balance",
-            need_email = True,
-            need_name = True,
-            need_phone_number = False,
-            need_shipping_address = False,
-            currency = "USD",
-            price = LabeledPrice("Loading $1", 1),
-            provider_token = PROVIDER_TOKEN
-        )
-    elif query.data == "load-two" :
-        context.bot.send_invoice(
-            chat_id = chat_id,
-            payload = payload,
-            title   = "$2 Loading",
-            description = "Payment for Loading $2 to Balance",
-            need_email = True,
-            need_name = True,
-            need_phone_number = False,
-            need_shipping_address = False,
-            currency = "USD",
-            price = LabeledPrice("Loading $2", 2),
-            provider_token = PROVIDER_TOKEN
-        )
+    endpoint = "/topup"
+    try:
+        response = requests.get(f"{BASE_URL}{endpoint}")
+        
+        if query.data == "load-five" :
+            context.bot.send_invoice(
+                chat_id = chat_id,
+                payload = payload,
+                title   = "$5 Loading",
+                description = "Payment for Loading $5 to Balance",
+                need_email = True,
+                need_name = True,
+                need_phone_number = False,
+                need_shipping_address = False,
+                currency = "USD",
+                price = LabeledPrice("Loading $5", 5),
+                provider_token = PROVIDER_TOKEN
+            )
+        elif query.data == "load-ten" :
+            context.bot.send_invoice(
+                chat_id = chat_id,
+                payload = payload,
+                title   = "$10 Loading",
+                description = "Payment for Loading $10 to Balance",
+                need_email = True,
+                need_name = True,
+                need_phone_number = False,
+                need_shipping_address = False,
+                currency = "USD",
+                price = LabeledPrice("Loading $10", 10),
+                provider_token = PROVIDER_TOKEN
+            )
+        elif query.data == "load-twenty" :
+            context.bot.send_invoice(
+                chat_id = chat_id,
+                payload = payload,
+                title   = "$20 Loading",
+                description = "Payment for Loading $20 to Balance",
+                need_email = True,
+                need_name = True,
+                need_phone_number = False,
+                need_shipping_address = False,
+                currency = "USD",
+                price = LabeledPrice("Loading $20", 20),
+                provider_token = PROVIDER_TOKEN
+            )
+        elif query.data == "load-fifty" :
+            context.bot.send_invoice(
+                chat_id = chat_id,
+                payload = payload,
+                title   = "$50 Loading",
+                description = "Payment for Loading $50 to Balance",
+                need_email = True,
+                need_name = True,
+                need_phone_number = False,
+                need_shipping_address = False,
+                currency = "USD",
+                price = LabeledPrice("Loading $50", 50),
+                provider_token = PROVIDER_TOKEN
+            )
+        elif query.data == "load-hundred" :
+            context.bot.send_invoice(
+                chat_id = chat_id,
+                payload = payload,
+                title   = "$100 Loading",
+                description = "Payment for Loading $100 to Balance",
+                need_email = True,
+                need_name = True,
+                need_phone_number = False,
+                need_shipping_address = False,
+                currency = "USD",
+                price = LabeledPrice("Loading $100", 100),
+                provider_token = PROVIDER_TOKEN
+            )
+        elif query.data == "load-two-hundred" :
+            context.bot.send_invoice(
+                chat_id = chat_id,
+                payload = payload,
+                title   = "$200 Loading",
+                description = "Payment for Loading $200 to Balance",
+                need_email = True,
+                need_name = True,
+                need_phone_number = False,
+                need_shipping_address = False,
+                currency = "USD",
+                price = LabeledPrice("Loading $200", 200),
+                provider_token = PROVIDER_TOKEN
+            )
+        elif query.data == "load-five-hundred" :
+            context.bot.send_invoice(
+                chat_id = chat_id,
+                payload = payload,
+                title   = "$500 Loading",
+                description = "Payment for Loading $500 to Balance",
+                need_email = True,
+                need_name = True,
+                need_phone_number = False,
+                need_shipping_address = False,
+                currency = "USD",
+                price = LabeledPrice("Loading $500", 500),
+                provider_token = PROVIDER_TOKEN
+            )
+        elif query.data == "load-one-thousand" :
+            context.bot.send_invoice(
+                chat_id = chat_id,
+                payload = payload,
+                title   = "$1000 Loading",
+                description = "Payment for Loading $1000 to Balance",
+                need_email = True,
+                need_name = True,
+                need_phone_number = False,
+                need_shipping_address = False,
+                currency = "USD",
+                price = LabeledPrice("Loading $1000", 1000),
+                provider_token = PROVIDER_TOKEN
+            )
+        elif query.data == "load-two-thousand" :
+            context.bot.send_invoice(
+                chat_id = chat_id,
+                payload = payload,
+                title   = "$2000 Loading",
+                description = "Payment for Loading $2000 to Balance",
+                need_email = True,
+                need_name = True,
+                need_phone_number = False,
+                need_shipping_address = False,
+                currency = "USD",
+                price = LabeledPrice("Loading $2000", 2000),
+                provider_token = PROVIDER_TOKEN
+            )
+        elif query.data == "load-five-thousand" :
+            context.bot.send_invoice(
+                chat_id = chat_id,
+                payload = payload,
+                title   = "$5000 Loading",
+                description = "Payment for Loading $5000 to Balance",
+                need_email = True,
+                need_name = True,
+                need_phone_number = False,
+                need_shipping_address = False,
+                currency = "USD",
+                price = LabeledPrice("Loading $5000", 5000),
+                provider_token = PROVIDER_TOKEN
+            )
+        elif query.data == "load-one" :
+            context.bot.send_invoice(
+                chat_id = chat_id,
+                payload = payload,
+                title   = "$1 Loading",
+                description = "Payment for Loading $1 to Balance",
+                need_email = True,
+                need_name = True,
+                need_phone_number = False,
+                need_shipping_address = False,
+                currency = "USD",
+                price = LabeledPrice("Loading $1", 1),
+                provider_token = PROVIDER_TOKEN
+            )
+        elif query.data == "load-two" :
+            context.bot.send_invoice(
+                chat_id = chat_id,
+                payload = payload,
+                title   = "$2 Loading",
+                description = "Payment for Loading $2 to Balance",
+                need_email = True,
+                need_name = True,
+                need_phone_number = False,
+                need_shipping_address = False,
+                currency = "USD",
+                price = LabeledPrice("Loading $2", 2),
+                provider_token = PROVIDER_TOKEN
+            )
+        await update.message.reply_text(response.text) 
+    
+    except:
+        await update.message.reply_text("Topup balance does not exist")
 
 async def successful_payment(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.message.chat.id

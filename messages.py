@@ -44,7 +44,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.message.chat.id
 
     BASEURL = "http://localhost:8000"
-    userPhoto = user.get_profile_photos(limit=1)
+    userPhoto = await user.get_profile_photos(limit=1)
     params = {
         "chat_id": chat_id,
         "from" : "Telegram",

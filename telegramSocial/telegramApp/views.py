@@ -9,6 +9,7 @@ from .models import Products
 from .models import Posts
 from .models import Groups
 from .models import Topup
+from django.db.utils import IntegrityError
 
 import json
 
@@ -83,20 +84,30 @@ def getAllTelegramUser(request):
     users = [model_to_dict(u) for u in users]
     return JsonResponse(users,safe=False)
 
+@csrf_exempt
 def addTelegramUserFriend(request):
     friend_id = request.POST.get("friend_id")
     chat_id = request.POST.get("chat_id")
-    user = TelegramUsers.objects.filter(chat_id=chat_id)
-    friend = TelegramUsers.objects.filter(chat_id=friend_id)
 
-    if friend :
-        user_id = user.__id
-        Friends.objects.create(friend_id=friend_id, chat_id=chat_id, user_id=user_id,user=user)
-        return HttpResponse("User Successfully Created")
+    try :
+        user = TelegramUsers.objects.filter(chat_id=chat_id).first()
+        friend = TelegramUsers.objects.filter(chat_id=friend_id).first()
+
+        if friend :
+            user_id = user.chat_id
+            Friends.objects.create(friend_id=friend_id, chat_id=chat_id, user_id=user_id,telegram=user)
+            return HttpResponse("Friend Successfully Established")
+        
+
+        else : 
+            return HttpResponse("Friend Indicated Not Found")
+        
+    except IntegrityError as e:        
+        return HttpResponse(f"Friend with ID: {friend_id} Already Accepted")
     
-
-    else : 
-        return HttpResponse("Friend Indicated Not Found")
+    except Exception as e :
+        print(e)
+        return HttpResponse("Friend Indicated does not Exists")
 
 
 def removeTelegramUserFriend(request):
@@ -122,7 +133,12 @@ def getAllTelegramFriend(request):
     friends = Friends.objects.filter(chat_id=user.chat_id )
 
     if friends :
-        return JsonResponse([model_to_dict(f) for f in friends ])
+        try :        
+            return HttpResponse(json.dumps( [model_to_dict(TelegramUsers.objects.filter(chat_id=f.friend_id).first()) for f in friends ] ))
+        
+        except Exception as e :
+            print(e)
+
     
     else :
         return HttpResponse("[]")
@@ -293,17 +309,37 @@ def index(request):
     username = request.GET.get("username")
     location = request.GET.get("location")
 
-    user = TelegramUsers(chat_id=chat_id)
+    try :
 
-    if user :
-        user.first_name = first_name
-        user.last_name = last_name 
-        user.username = username 
-        user.location = location or ""
-        user.phone_number = phone_number or ""
-        user.save() 
+        user = TelegramUsers.objects.filter(chat_id=chat_id).first()
 
-    else :
+        if user :
+            user.first_name = first_name
+            user.last_name = last_name 
+            user.username = username 
+            user.location = location or ""
+            user.phone_number = phone_number or ""
+            user.save() 
+
+        else :
+            if not first_name :
+                first_name = ""
+
+            if not last_name :
+                last_name = ""
+            
+            if not location :
+                location = ""
+
+            if not username :
+                username = ""
+
+            if not phone_number :
+                phone_number = ""
+
+            TelegramUsers.objects.create(chat_id=chat_id, last_name=last_name, first_name=first_name,location=location, username=username, phone_number=phone_number)
+
+    except :
         if not first_name :
             first_name = ""
 

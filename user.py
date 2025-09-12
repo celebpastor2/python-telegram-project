@@ -16,18 +16,25 @@ async def addFriend(update:Update, context: ContextTypes.DEFAULT_TYPE ):
         chat_id = update.message.chat.id
         
         endpoint = "/add-telegram-friend/"
+
+        if chat_id == id :
+            await update.message.reply_text("Can't send friend request to yourself")
+            return
+        
         data = {
             "friend_id" : id,
             "chat_id"   : chat_id
         }
 
         response = requests.post(f"{BASE_URL}{endpoint}", data=data)
-
-        await update.message.reply_text(response.text)
+        text = response.text
+        print(text)
+        await update.message.reply_text(text[:100])
         await context.bot.send_message(chat_id=id, text=f"Friend Request From {user.first_name} \n accept by running /acceptRequest {chat_id}")
 
 
     except Exception as e:
+        print(e)
         keyboard_markup = InlineKeyboardMarkup([[InlineKeyboardButton("Accept Friend Request", callback_data=f"add-friend-{chat_id}")], [InlineKeyboardButton("View Ads", url=ADS_LINK)]])
         await update.message.reply_text("Error Send Request \n Ensure your request was formatted like this \n /friend [id] ", reply_markup=keyboard_markup)
 

@@ -96,9 +96,9 @@ async def queryHandler(update: Update, context:CallbackContext ):
             resp_text = f"Total Friends Found {len(friends)}"
 
             for friend in friends :
-                resp_text += f"\n {friend['name']} {friend[chat_id]}"
+                resp_text += f"\n {friend['username']} {friend['chat_id']}"
             
-            resp_text  = f"\n chat with any friend using /message [friend_id] [message...]"
+            resp_text  += f"\n chat with any friend using /message [friend_id] [message...]"
             await query.edit_message_text(resp_text, reply_markup=keyboard_markup)
 
         else :

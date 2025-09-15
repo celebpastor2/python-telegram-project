@@ -10,6 +10,8 @@ from .models import Posts
 from .models import Groups
 from .models import Topup
 from django.db.utils import IntegrityError
+from .forms import UserForm
+from .forms import ProductForm
 
 import json
 
@@ -22,8 +24,10 @@ class RegisterUser():
     
 
 def product_create_page(request):
-    
-    return render(request, "product_create.html")
+    form = ProductForm()
+    return render(request, "product_create.html", {
+        "form"  : form
+    })
 
 def create_post_page(request):
 
@@ -210,6 +214,41 @@ def getAllTelegramPost(request):
     
     else :
         return HttpResponse("{}")
+    
+def load_balance(request):
+    chat_id     = request.POST.get("chat_id")
+    amount  = request.POST.get("amount")
+    payload = request.POST.get("payload")
+    user    = TelegramUsers.objects.filter(chat_id=chat_id).first()
+    topup   = Topup.objects.filter(chat_id=chat_id).first()
+
+    if user :        
+        balance     = float( user.balance )
+        new_balance = balance + float(amount)
+        
+        if topup and topup.payload == payload:
+            user.balance    = new_balance
+            user.save()
+            JsonResponse(data={
+                "success"   : True,
+                "balance"   : new_balance,
+                "old_balance"   : balance,
+                "chat_id"   : chat_id
+            })
+            topup.delete()
+        else :
+            JsonResponse(data={
+                "success"   : False,
+                "message"   : "Couldn't find a corresponding topup data"
+            })
+
+    else :
+        JsonResponse(data={
+            "success"   : False,
+            "message": "User not found"
+        })
+
+
     
 def get_products(request):
     products = list( Products.objects.select_related("user").filter(available=True))
@@ -400,12 +439,12 @@ def topup(request):
     price = request.POST.get("price")
     
 
-    topup = Topup.objects.filter(chat_id=chat_id, payload=payload, title=title, description=description, email=email, name=name, phone_number=phone_number, shipping_address=shipping_address, currency=currency, price=price, ) 
+    topup = Topup.objects.create(chat_id=chat_id, payload=payload, title=title, description=description, email=email, name=name, phone_number=phone_number, shipping_address=shipping_address, currency=currency, price=price ) 
 
     if  topup :
-        return HttpResponse("This is Topup page")
+        return HttpResponse("Topup Successful")
     else:
-        return HttpResponse("Can't find topup balance")
+        return HttpResponse("Topup Failed")
 
 
 

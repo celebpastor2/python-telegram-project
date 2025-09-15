@@ -74,8 +74,14 @@
         <button type="submit"
           class="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition">Create Product</button>
       </div>
-      
+      {{form.as_p }}
     </form>
+
+    <form method="post">
+      {% csrf_token %}
+      {{form.as_p}}
+    </form>
+
   </div>
 </body>
 </html>

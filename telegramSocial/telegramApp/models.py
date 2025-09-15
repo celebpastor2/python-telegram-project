@@ -52,14 +52,14 @@ class Products(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
 class Topup(models.Model):
-    chat_id = models.CharField(max_length=255, unique=True)
-    payload = models.JSONField()
-    name = models.CharField(max_length=255)
-    title = models.CharField(max_length=255)
+    chat_id = models.CharField(max_length=255)
+    payload = models.JSONField(unique=True)
+    name = models.CharField(max_length=255, null=True)
+    title = models.CharField(max_length=255, null=True)
     description = models.TextField(blank=True)
-    email = models.JSONField()
+    email = models.JSONField(null=True)
     phone_number   = models.CharField(max_length=30, default="", null=True)
-    shipping_address = models.CharField(max_length=255)
-    currency = models.DecimalField(max_digits=10, decimal_places=2)
+    shipping_address = models.CharField(max_length=255, null=True)
+    currency = models.CharField(max_length=10)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     

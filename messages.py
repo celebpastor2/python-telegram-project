@@ -18,7 +18,7 @@ from webdriver_manager.chrome   import ChromeDriverManager
 from bs4 import BeautifulSoup
 from user import BASE_URL, ADS_LINK, addFriend, refer
 from product import create_product, update_product
-from profiler import queryHandler, topup_balance, successful_payment
+from profiler import queryHandler,  successful_payment, pre_checkout
 from group import updateGroup, addGroupMembers,createGroupPost
 from friends import acceptFriendRequest
 from post import createPost
@@ -26,8 +26,6 @@ from post import createPost
 #xTIC8lUd7N
 
 TELEGRAM_TOKEN = "8446176836:AAGcPgTP9HRfp4g9qeoMnNIV2akVnjaa5WM"
-
-
 
 
 #optional 
@@ -42,6 +40,7 @@ logging.basicConfig(
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.message.from_user
     chat_id = update.message.chat.id
+    print("Chat ID: ", chat_id )
 
     BASEURL = "http://localhost:8000"
     userPhoto = await user.get_profile_photos(limit=1)
@@ -104,7 +103,7 @@ def main():
     application.add_handler(CommandHandler("updateGroup", updateGroup))
     application.add_handler(CommandHandler("referee", refer))
     application.add_handler(CallbackQueryHandler(queryHandler))
-    application.add_handler(CallbackQueryHandler(topup_balance))
+    application.add_handler(PreCheckoutQueryHandler(pre_checkout))
     application.add_handler(MessageHandler(filters=filters.SUCCESSFUL_PAYMENT, callback=successful_payment))
     print("Application Running")
     application.run_polling()

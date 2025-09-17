@@ -133,9 +133,10 @@ async def queryHandler(update: Update, context:CallbackContext ):
             products = json.loads(response.text)
             text     = ""
             print(f"Response Gotten {response.text}")
-
-            for product in products:
-                text += f"id - {product._id} name - {product.name} price - ${product.price} \n\n"
+            
+            for product in products["fields"]:
+            
+                text += f"name - {product['name']} price - ${product['price']} \n\n"
 
             if not text :
                 text += "No Product Available Yet \n\n You can be the first to add product using the following Command \n\n /createProduct [product_name] [product_price] [image_url] [stock] [description]"
@@ -175,6 +176,9 @@ async def queryHandler(update: Update, context:CallbackContext ):
     elif query.data == "create-product" :
         await query.edit_message_text("create product by entering these command \n /create_product [product-name] [price] ")
 
+    else :
+        await topup_balance(update=update,context=context)
+
 
 async def topup_balance(update: Update, context: CallbackContext) :
     query = update.callback_query
@@ -182,13 +186,14 @@ async def topup_balance(update: Update, context: CallbackContext) :
     user = update.effective_user
     chat_id = update.effective_chat.id
     payload = generateTxt(15)
-    endpoint = "/topup"
+    
+    print(f"See Query Data {query.data}")
     try:
-        response = requests.get(f"{BASE_URL}{endpoint}")
+       
         
         if query.data == "load-five" :
-            context.bot.send_invoice(
-                chat_id = chat_id,
+
+            await query.message.reply_invoice(
                 payload = payload,
                 title   = "$5 Loading",
                 description = "Payment for Loading $5 to Balance",
@@ -197,11 +202,11 @@ async def topup_balance(update: Update, context: CallbackContext) :
                 need_phone_number = False,
                 need_shipping_address = False,
                 currency = "USD",
-                price = LabeledPrice("Loading $5", 5),
+                prices = [LabeledPrice("Loading $5", 500)],
                 provider_token = PROVIDER_TOKEN
             )
         elif query.data == "load-ten" :
-            context.bot.send_invoice(
+            await query.message.reply_invoice(
                 chat_id = chat_id,
                 payload = payload,
                 title   = "$10 Loading",
@@ -211,12 +216,11 @@ async def topup_balance(update: Update, context: CallbackContext) :
                 need_phone_number = False,
                 need_shipping_address = False,
                 currency = "USD",
-                price = LabeledPrice("Loading $10", 10),
+                prices = [LabeledPrice("Loading $10", 1000)],
                 provider_token = PROVIDER_TOKEN
             )
         elif query.data == "load-twenty" :
-            context.bot.send_invoice(
-                chat_id = chat_id,
+            await query.message.reply_invoice(
                 payload = payload,
                 title   = "$20 Loading",
                 description = "Payment for Loading $20 to Balance",
@@ -225,12 +229,11 @@ async def topup_balance(update: Update, context: CallbackContext) :
                 need_phone_number = False,
                 need_shipping_address = False,
                 currency = "USD",
-                price = LabeledPrice("Loading $20", 20),
+                prices = [LabeledPrice("Loading $20", 2000)],
                 provider_token = PROVIDER_TOKEN
             )
         elif query.data == "load-fifty" :
-            context.bot.send_invoice(
-                chat_id = chat_id,
+            await query.message.reply_invoice(
                 payload = payload,
                 title   = "$50 Loading",
                 description = "Payment for Loading $50 to Balance",
@@ -239,12 +242,11 @@ async def topup_balance(update: Update, context: CallbackContext) :
                 need_phone_number = False,
                 need_shipping_address = False,
                 currency = "USD",
-                price = LabeledPrice("Loading $50", 50),
+                prices = [LabeledPrice("Loading $50", 5000)],
                 provider_token = PROVIDER_TOKEN
             )
         elif query.data == "load-hundred" :
-            context.bot.send_invoice(
-                chat_id = chat_id,
+            await query.message.reply_invoice(
                 payload = payload,
                 title   = "$100 Loading",
                 description = "Payment for Loading $100 to Balance",
@@ -253,12 +255,11 @@ async def topup_balance(update: Update, context: CallbackContext) :
                 need_phone_number = False,
                 need_shipping_address = False,
                 currency = "USD",
-                price = LabeledPrice("Loading $100", 100),
+                prices = [LabeledPrice("Loading $100", 10000)],
                 provider_token = PROVIDER_TOKEN
             )
         elif query.data == "load-two-hundred" :
-            context.bot.send_invoice(
-                chat_id = chat_id,
+            await query.message.reply_invoice(
                 payload = payload,
                 title   = "$200 Loading",
                 description = "Payment for Loading $200 to Balance",
@@ -267,12 +268,12 @@ async def topup_balance(update: Update, context: CallbackContext) :
                 need_phone_number = False,
                 need_shipping_address = False,
                 currency = "USD",
-                price = LabeledPrice("Loading $200", 200),
+                prices = [LabeledPrice("Loading $200", 20000)],
                 provider_token = PROVIDER_TOKEN
             )
         elif query.data == "load-five-hundred" :
-            context.bot.send_invoice(
-                chat_id = chat_id,
+            print("In loading five hundred...")
+            await query.message.reply_invoice(
                 payload = payload,
                 title   = "$500 Loading",
                 description = "Payment for Loading $500 to Balance",
@@ -281,12 +282,11 @@ async def topup_balance(update: Update, context: CallbackContext) :
                 need_phone_number = False,
                 need_shipping_address = False,
                 currency = "USD",
-                price = LabeledPrice("Loading $500", 500),
+                prices = [LabeledPrice("Loading $500", 50000)],
                 provider_token = PROVIDER_TOKEN
             )
         elif query.data == "load-one-thousand" :
-            context.bot.send_invoice(
-                chat_id = chat_id,
+            await query.message.reply_invoice(
                 payload = payload,
                 title   = "$1000 Loading",
                 description = "Payment for Loading $1000 to Balance",
@@ -295,12 +295,11 @@ async def topup_balance(update: Update, context: CallbackContext) :
                 need_phone_number = False,
                 need_shipping_address = False,
                 currency = "USD",
-                price = LabeledPrice("Loading $1000", 1000),
+                prices = [LabeledPrice("Loading $1000", 100000)],
                 provider_token = PROVIDER_TOKEN
             )
         elif query.data == "load-two-thousand" :
-            context.bot.send_invoice(
-                chat_id = chat_id,
+            await query.message.reply_invoice(
                 payload = payload,
                 title   = "$2000 Loading",
                 description = "Payment for Loading $2000 to Balance",
@@ -309,12 +308,11 @@ async def topup_balance(update: Update, context: CallbackContext) :
                 need_phone_number = False,
                 need_shipping_address = False,
                 currency = "USD",
-                price = LabeledPrice("Loading $2000", 2000),
+                prices = [LabeledPrice("Loading $2000", 200000)],
                 provider_token = PROVIDER_TOKEN
             )
         elif query.data == "load-five-thousand" :
-            context.bot.send_invoice(
-                chat_id = chat_id,
+            await query.message.reply_invoice(
                 payload = payload,
                 title   = "$5000 Loading",
                 description = "Payment for Loading $5000 to Balance",
@@ -323,12 +321,11 @@ async def topup_balance(update: Update, context: CallbackContext) :
                 need_phone_number = False,
                 need_shipping_address = False,
                 currency = "USD",
-                price = LabeledPrice("Loading $5000", 5000),
+                prices = [LabeledPrice("Loading $5000", 500000)],
                 provider_token = PROVIDER_TOKEN
             )
         elif query.data == "load-one" :
-            context.bot.send_invoice(
-                chat_id = chat_id,
+            await query.message.reply_invoice(
                 payload = payload,
                 title   = "$1 Loading",
                 description = "Payment for Loading $1 to Balance",
@@ -337,11 +334,11 @@ async def topup_balance(update: Update, context: CallbackContext) :
                 need_phone_number = False,
                 need_shipping_address = False,
                 currency = "USD",
-                price = LabeledPrice("Loading $1", 1),
+                prices = [LabeledPrice("Loading $1", 100)],
                 provider_token = PROVIDER_TOKEN
             )
         elif query.data == "load-two" :
-            context.bot.send_invoice(
+            await query.message.reply_invoice(
                 chat_id = chat_id,
                 payload = payload,
                 title   = "$2 Loading",
@@ -351,13 +348,14 @@ async def topup_balance(update: Update, context: CallbackContext) :
                 need_phone_number = False,
                 need_shipping_address = False,
                 currency = "USD",
-                price = LabeledPrice("Loading $2", 2),
+                prices = [LabeledPrice("Loading $2", 2)],
                 provider_token = PROVIDER_TOKEN
             )
-        await update.message.reply_text(response.text) 
+        #await update.message.reply_text(response.text) 
     
-    except:
-        await update.message.reply_text("Topup balance does not exist")
+    except Exception as e:
+        print(e)
+        await query.edit_message_text("Topup balance does not exist")
 
 async def successful_payment(update: Update, context: ContextTypes.DEFAULT_TYPE):
     chat_id = update.message.chat.id
@@ -383,13 +381,46 @@ async def successful_payment(update: Update, context: ContextTypes.DEFAULT_TYPE)
             f"Thank you for Purchasing Our Credit {user.username}\n\n"
             f"Your Purchased: ${payment.total_amount / 100}\n\n"
             f"Your transaction ID: {payment.telegram_payment_charge_id} \n\n"
-            f"Your Balance is now: ${userFr['balance']}"
+            f"Your Balance is now: ${userFr['new_balance']}"
 
 
         )
 
     except :
         await update.message.reply_text(f"Payment Successful But Balance not Updated\n\n You can run /retry_payment {payload} to retry loading you balance. Note your payload ID: {payload}")
+
+
+async def pre_checkout(update: Update, context: CallbackContext) :
+    query       = update.pre_checkout_query
+    chat_id     = query.from_user.id
+    payload     =  query.invoice_payload
+    shiping_add    = query.order_info.shipping_address
+    email          = query.order_info.email
+    name            = query.order_info.name
+    phone_number    = query.order_info.phone_number
+    description     = ""
+    title           = ""
+    currency        = query.currency
+    price           = query.total_amount
+    endpoint        = "/topup"
+
+    data = {
+        "chat_id":chat_id,
+        "payload":payload,
+        "name"  : name,
+        "title" : title,
+        "description":description,
+        "email":email,
+        "phone_number": phone_number,
+        "shipping_address": shiping_add,
+        "currency"  : currency,
+        "price"     : price
+
+    }
+
+    requests.post(f"{BASE_URL}{endpoint}", data=data)
+        
+    await query.answer(ok=True)
 
 def generateTxt(limit = 10) :
     letters = string.ascii_letters + string.digits

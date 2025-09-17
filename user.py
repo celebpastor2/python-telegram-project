@@ -6,7 +6,7 @@ import json
 BASE_URL    = "http://localhost:8000"
 ADS_LINK    = "https://www.profitableratecpm.com/armxiuwyu?key=1da115d4d39828e534c0206c4af9f885"
 CLIENT_ID   = "1275654567290162"
-PROVIDER_TOKEN = ""
+PROVIDER_TOKEN = "1877036958:TEST:2d7a54a73f0b776ebc03649de17f636a8df74710"# "6073714100:TEST:TG_aTSTAwrnZIJYlAFfPn7vv1MA"#1877036958:TEST:2d7a54a73f0b776ebc03649de17f636a8df74710
 
 
 async def addFriend(update:Update, context: ContextTypes.DEFAULT_TYPE ):

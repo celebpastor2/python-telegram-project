@@ -38,8 +38,8 @@ async def queryHandler(update: Update, context:CallbackContext ):
             'chat_id'   : chat_id,
 
         }
-        response =  requests.post(BASE_URL + endpoint, data=data, headers={'Content-Type' : 'application/json'})
-        if not response.text == "Group Creator Does not Exists":
+        response =  requests.post(BASE_URL + endpoint, data=data)
+        if not response.text.lower() == "Group Creator Does not Exists":
             await query.edit_message_text(f"Group Successfully Created with ID: \n {group_id} \n update group with /updateGroup {group_id} [group_name] [description] \n add members to group using /addGroupMembers {group_id} [member_chat_id]")
 
         else :

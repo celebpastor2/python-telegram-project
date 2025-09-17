@@ -19,8 +19,7 @@ class Groups(models.Model):
     group_settings = models.TextField(default="[]")
     telegram      = models.ForeignKey(TelegramUsers, on_delete=models.RESTRICT, to_field="chat_id", default=None)
 
-class Posts(models.Model):
-    post_id = models.CharField(max_length=30, unique=True)
+class Posts(models.Model):#_id 
     content = models.TextField()
     target  = models.CharField(max_length=10)    
     telegram       = models.ForeignKey(TelegramUsers, on_delete=models.RESTRICT, to_field="chat_id", default=None)

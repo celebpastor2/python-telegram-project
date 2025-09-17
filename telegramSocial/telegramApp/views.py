@@ -113,7 +113,7 @@ def addTelegramUserFriend(request):
         print(e)
         return HttpResponse("Friend Indicated does not Exists")
 
-
+@csrf_exempt
 def removeTelegramUserFriend(request):
     friend_id = request.POST.get("friend_id")
     chat_id = request.POST.get("chat_id")
@@ -146,7 +146,8 @@ def getAllTelegramFriend(request):
     
     else :
         return HttpResponse("[]")
-    
+
+@csrf_exempt 
 def getAllTelegramGroups(request):
     chat_id = request.POST.get("chat_id")
     user    = TelegramUsers.objects.filter(chat_id=chat_id)
@@ -158,17 +159,23 @@ def getAllTelegramGroups(request):
     else :
         return HttpResponse("{}")
     
+@csrf_exempt   
 def createTelegramGroup(request):
     chat_id = request.POST.get("chat_id")
+    #chat_id = request.GET.get("chat_id")#debugger
     group_id = request.POST.get("group_id")
-    user    = TelegramUsers.objects.filter(chat_id=chat_id)
+    #group_id = request.GET.get("group_id")#debugger
+    user    = TelegramUsers.objects.filter(chat_id=chat_id).first()
+    print(user)
 
     if user :
        Groups.objects.create(group_id=group_id, telegram=user)
+       return HttpResponse("Group Successfully Created")
     
     else :
         return HttpResponse("Group Creator Does not Exists")
-    
+
+@csrf_exempt   
 def updateTelegramGroup(request):
     chat_id = request.POST.get("chat_id")
     setting = request.POST.get("setting")
@@ -203,7 +210,8 @@ def updateTelegramGroup(request):
     
     else :
         return HttpResponse("Group Does not Exists")
-    
+
+@csrf_exempt   
 def getAllTelegramPost(request):
     chat_id = request.POST.get("chat_id")
     user    = TelegramUsers.objects.filter(chat_id=chat_id)
@@ -214,7 +222,8 @@ def getAllTelegramPost(request):
     
     else :
         return HttpResponse("{}")
-    
+
+@csrf_exempt   
 def load_balance(request):
     chat_id     = request.POST.get("chat_id")
     amount  = request.POST.get("amount")
@@ -264,6 +273,7 @@ def get_products(request):
 
     return HttpResponse(serializers.serialize("json", products))
 
+@csrf_exempt
 def create_product(request):
 
     try :
@@ -292,7 +302,8 @@ def create_product(request):
     except Exception as e:
         print(e)
         return HttpResponse("Error Creating product to database")
-    
+
+@csrf_exempt    
 def update_product(request):
 
     try :
@@ -378,6 +389,8 @@ def index(request):
 
             TelegramUsers.objects.create(chat_id=chat_id, last_name=last_name, first_name=first_name,location=location, username=username, phone_number=phone_number)
 
+        return HttpResponse("User Successfully Created")
+
     except :
         if not first_name :
             first_name = ""
@@ -396,9 +409,9 @@ def index(request):
 
         TelegramUsers.objects.create(chat_id=chat_id, last_name=last_name, first_name=first_name,location=location, username=username, phone_number=phone_number)
 
-    with open("chat_ids.txt", "+a") as file :
-        file.write(f"{chat_id} \n")
+        return HttpResponse("User Successfully Created")
 
+@csrf_exempt
 def createPost(request):
     content = request.POST.get("content")
     chat_id = request.POST.get("chat_id")
@@ -411,7 +424,8 @@ def createPost(request):
     else :
         Posts.objects.create(content=content, telegram=user, target=context )
         return HttpResponse("Post Successfully Created")
-    
+
+@csrf_exempt   
 def share_post(request, post_id):
     post_id = request.POST.get("post_id")
     original_post = request.POST.get(Posts, id=post_id)
@@ -426,6 +440,7 @@ def share_post(request, post_id):
         return HttpResponse("Can't share post")
     
 
+@csrf_exempt
 def topup(request):
     chat_id = request.POST.get("chat_id")
     payload = request.POST.get("payload")

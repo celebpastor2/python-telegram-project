@@ -11,17 +11,20 @@ async def createPost(update:Update, context: ContextTypes.DEFAULT_TYPE ):
         [*content] = context.args
         user = update.message.from_user
         chat_id = update.message.chat.id
+        content = " ".join(content)
         
         endpoint = "/create-post/"
         data = {
             "chat_id"   : chat_id,
             "content"   : content
         }
+        
 
         response = requests.post(f"{BASE_URL}{endpoint}", data=data)
+       
 
-        await update.message.reply_text(response.text)
-
+        await update.message.reply_text(response.text  + "\n\n" + content)
+        
         endpoint = "/get-telegram-friends/"
         data = {
             "chat_id"   : chat_id
@@ -34,16 +37,18 @@ async def createPost(update:Update, context: ContextTypes.DEFAULT_TYPE ):
             friends = json.loads(response.text)
 
             for friend in friends :
-                chat_id = friend.chat_id
-                await context.bot.send_message(chat_id=chat_id, text=f"Post from  {user.first_name} \n {content} \n {chat_id}")
+                friend_id = friend['chat_id']
+                await context.bot.send_message(chat_id=friend_id, text=f"Post from  {user.first_name} \n {content} \n {chat_id}")
 
-        except :
+        except Exception as e :
+            print(e)
             await update.message.reply_text("Couldn't update friends")
 
 
     except Exception as e:
+        print(e)
         keyboard_markup = InlineKeyboardMarkup([[InlineKeyboardButton("Accept Friend Request", callback_data=f"add-friend-{chat_id}")], [InlineKeyboardButton("View Ads", url=ADS_LINK)]])
-        await update.message.reply_text("Error Send Request \n Ensure your request was formatted like this \n /friend [id] ", reply_markup=keyboard_markup)
+        await update.message.reply_text("Error Send Request \n Ensure your request was formatted like this \n /createPost [content...] all the content you want to write", reply_markup=keyboard_markup)
 
 async def Sharepost(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:

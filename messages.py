@@ -55,16 +55,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query_string =  urlencode(params, doseq=True, safe=":$")
     url = BASEURL + "?" + query_string
 
-    response = requests.get(url=url)
+    requests.get(url=url)
 
-    if ( response and response.data and response.data == "User not Exist" ) or not response:
-         usered = {
-                "chat_id": chat_id,
-                "first_name" : user.first_name,
-                "last_name" : user.last_name
-            }
-
-    
+        
     keyboard_markup = InlineKeyboardMarkup([
         [InlineKeyboardButton("Profile", callback_data="check-profile"), InlineKeyboardButton("Create Group", callback_data="create-group")],
         [InlineKeyboardButton("Product", callback_data="check-product"), InlineKeyboardButton("Create Adverts", callback_data="create-ads")],
